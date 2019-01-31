@@ -11,8 +11,11 @@ import bluetooth.list.lln.Constant.BTConstant
 import bluetooth.list.lln.Listener.BTListener
 import bluetooth.list.lln.Receiver.BTReceiver
 import bluetooth.list.lln.Receiver.BTStateReceiver
+import java.util.logging.Logger
 
 class BTHelper(private val context: Context, private val listener: BTListener) {
+
+    val LOG = Logger.getLogger(BTHelper::class.java.name)
 
     private val mBluetoothAdapter by lazy {
         return@lazy BluetoothAdapter.getDefaultAdapter()
@@ -33,8 +36,14 @@ class BTHelper(private val context: Context, private val listener: BTListener) {
 
             override fun onFinishDiscovering() {
                 isDiscovering = false
-                context.unregisterReceiver(mBluetoothDeviceFounderReceiver)
-                listener.onFinishDiscovery()
+                try {
+                    context.unregisterReceiver(mBluetoothDeviceFounderReceiver)
+                }catch (e : IllegalArgumentException ){
+                    LOG.warning("Erro" + e)
+                }finally {
+                    listener.onFinishDiscovery()
+                }
+
             }
 
             override fun onEnabledBluetooth() {

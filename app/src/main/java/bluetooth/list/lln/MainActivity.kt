@@ -5,11 +5,19 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.SwitchCompat
+import android.util.Log
+import android.view.View
+import android.widget.Switch
 import bluetooth.list.lln.Adapter.BTAdapter
 import bluetooth.list.lln.Helper.BTHelper
 import bluetooth.list.lln.Listener.BTListener
 import bluetooth.list.lln.Model.BTModel
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
+import java.util.logging.Handler
+import java.util.logging.Logger
+import kotlin.concurrent.schedule
 
 class MainActivity : AppCompatActivity(), BTListener {
 
@@ -19,9 +27,11 @@ class MainActivity : AppCompatActivity(), BTListener {
 
     private var itemList = ArrayList<BTModel>()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
 
         bluetoothHelper = BTHelper(this, this)
             .setPermissionRequired(true)
@@ -58,6 +68,22 @@ class MainActivity : AppCompatActivity(), BTListener {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = viewAdapter
         }
+
+        switch_enable.setOnClickListener({
+
+            if (switch_enable.isChecked) {
+                bluetoothHelper.enableBluetooth()
+                Timer().schedule(2000){
+                    bluetoothHelper.startDiscovery()
+                }
+
+            } else {
+                bluetoothHelper.disableBluetooth()
+                bluetoothHelper.stopDiscovery()
+            }
+
+        })
+
     }
 
     override fun onStartDiscovery() {
@@ -95,3 +121,5 @@ class MainActivity : AppCompatActivity(), BTListener {
         bluetoothHelper.unregisterBluetoothStateChanged()
     }
 }
+
+
